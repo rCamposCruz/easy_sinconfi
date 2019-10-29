@@ -62,6 +62,14 @@ RSpec.describe SICONFI do
 			data_array.each do |data_object|
 				expect(data_object.valid?).to eq(true)
 			end
+
+			data_array = @source.query_data({an_exercicio: @ano_exercicio,
+																			 nr_periodo: @nr_periodo_valido,
+																			 co_tipo_demonstrativo: 'RGF',
+																			 no_anexo: @source.available_no_anexo_rgf[1],
+																			 id_ente: @codigo_ibge_sao_paulo,
+																			 in_periodicidade: 'Q',
+																			 co_poder: 'E'})
 		end
 	end
 end

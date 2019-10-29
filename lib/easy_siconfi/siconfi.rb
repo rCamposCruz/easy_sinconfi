@@ -2,18 +2,19 @@ require "net/http"
 require "json"
 
 class SICONFI
-	attr_accessor :available_no_anexo, :available_co_tipo_demonstrativo
+	attr_accessor :available_no_anexo_rreo, :available_no_anexo_rgf, :available_co_tipo_demonstrativo
 
 	def initialize()
-		@webservice_url = "http://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo?"
-		@available_no_anexo = ['RREO-Anexo 01', 'RREO-Anexo 02', 'RREO-Anexo 03', 
-		 			 								 'RREO-Anexo 04', 'RREO-Anexo 04 - RGPS', 'RREO-Anexo 04 - RPPS', 
-													 'RREO-Anexo 04.0 - RGPS', 'RREO-Anexo 04.1', 'RREO-Anexo 04.2', 
-													 'RREO-Anexo 04.3 - RGPS', 'RREO-Anexo 05', 'RREO-Anexo 06', 
-													 'RREO-Anexo 07', 'RREO-Anexo 09', 'RREO-Anexo 10 - RGPS', 'RREO-Anexo 10 - RPPS', 
-													 'RREO-Anexo 11', 'RREO-Anexo 13', 'RREO-Anexo 14']
+		@webservice_url = "http://apidatalake.tesouro.gov.br/ords/siconfi/tt/"
+		@available_no_anexo_rreo = ['RREO-Anexo 01', 'RREO-Anexo 02', 'RREO-Anexo 03', 
+		 			 								 			'RREO-Anexo 04', 'RREO-Anexo 04 - RGPS', 'RREO-Anexo 04 - RPPS', 
+													 			'RREO-Anexo 04.0 - RGPS', 'RREO-Anexo 04.1', 'RREO-Anexo 04.2', 
+													 			'RREO-Anexo 04.3 - RGPS', 'RREO-Anexo 05', 'RREO-Anexo 06', 
+													 			'RREO-Anexo 07', 'RREO-Anexo 09', 'RREO-Anexo 10 - RGPS', 
+																'RREO-Anexo 10 - RPPS', 'RREO-Anexo 11', 'RREO-Anexo 13', 'RREO-Anexo 14']
+		@available_no_anexo_rgf = ['RGF-Anexo 01', 'RGF-Anexo 02', 'RGF-Anexo 03', 'RGF-Anexo 04', 'RGF-Anexo 06']
 
-		@available_co_tipo_demonstrativo = ['RREO', 'RREO Simplificado']
+		@available_co_tipo_demonstrativo = ['RREO', 'RREO Simplificado', 'RGF', 'RGF Simplificado']
 	end
 
 	def get_to_server(str)
@@ -36,12 +37,22 @@ class SICONFI
 			 check_nr_periodo(hash[:nr_periodo]) &&  check_an_exercicio(hash[:an_exercicio]) &&  
 			 check_id_ente(hash[:id_ente]) then
 
-			# Builds query 		
-			url = "#{@webservice_url}an_exercicio=#{hash[:an_exercicio]}"
-			url = "#{url}&nr_periodo=#{hash[:nr_periodo]}"
-			url = "#{url}&co_tipo_demonstrativo=#{hash[:co_tipo_demonstrativo]}"
-			url = "#{url}&id_ente=#{hash[:id_ente]}"
-			url = "#{url}&no_anexo=#{hash[:no_anexo]}"
+			url = @webservice_url
+
+			if hash[:no_anexo].index("RREO") != nil || hash[:no_anexo].match(/^\D\d+/) then
+				url = "#{url}rreo?"
+
+			elsif hash[:no_anexo].index("RGF") != nil then
+				url = "#{url}rgf?"
+				url = "#{url}in_periodicidade=#{hash[:in_periodicidade]}&"	
+				url = "#{url}&co_poder=#{hash[:co_poder]}&"
+			end
+
+			url = "#{url}an_exercicio=#{hash[:an_exercicio]}&"
+			url = "#{url}nr_periodo=#{hash[:nr_periodo]}&"
+			url = "#{url}co_tipo_demonstrativo=#{hash[:co_tipo_demonstrativo]}&"
+			url = "#{url}no_anexo=#{hash[:no_anexo]}&"
+			url = "#{url}id_ente=#{hash[:id_ente]}"
 
 			consume_json(get_to_server(url))
 		else
@@ -66,9 +77,9 @@ class SICONFI
 		if no_anexo == nil then
 			false
 		elsif no_anexo.match(/^\D\d+/) then
-			no_anexo.to_i < @available_no_anexo.size && no_anexo.to_i >= 0
+			(no_anexo.to_i < @available_no_anexo_rreo.size || @available_no_anexo_rgf.size) && no_anexo.to_i >= 0 
 		else
-			@available_no_anexo.index(no_anexo) != nil
+			@available_no_anexo_rreo.index(no_anexo) != nil || @available_no_anexo_rgf.index(no_anexo) != nil
 		end
 	end
 
