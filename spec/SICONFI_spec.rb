@@ -70,6 +70,10 @@ RSpec.describe SICONFI do
 																			 id_ente: @codigo_ibge_sao_paulo,
 																			 in_periodicidade: 'Q',
 																			 co_poder: 'E'})
+
+			data_array.each do |data_object|
+				expect(data_object.valid?).to eq(true)
+			end
 		end
 	end
 end
