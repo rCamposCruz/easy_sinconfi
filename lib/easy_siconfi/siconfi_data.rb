@@ -18,12 +18,12 @@ class SICONFIData
 			@co_poder = hash['co_poder']
 		end
 	end
-
+	#rotulo can be null
 	def valid?()
 		@exercicio != nil && @periodo != nil && 
 		@periodicidade != nil && @instituicao != nil && 
 		@uf != nil && @populacao != nil && 
-		@rotulo != nil && @coluna != nil && 
+		@coluna != nil && 
 		@conta != nil && @valor != nil 
 	end
 	
